@@ -3,9 +3,9 @@ import {
     useRef,
     useState,
 } from 'react';
-import { LocateFixed, MapPin } from 'lucide-react';
+import {LocateFixed, MapPin} from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import {Button} from '@/components/ui/button';
 
 interface LocationPickerMapProps {
     latitude: number | null;
@@ -29,6 +29,9 @@ const DEFAULT_LOCATION: [number, number] = [
 export default function LocationPickerMap({
                                               latitude,
                                               longitude,
+                                              viewLatitude,
+                                              viewLongitude,
+                                              viewZoom,
                                               onChange,
                                           }: LocationPickerMapProps) {
     const containerRef =
@@ -53,6 +56,9 @@ export default function LocationPickerMap({
 
     const [locationError, setLocationError] =
         useState<string | null>(null);
+
+    const [mapReady, setMapReady] =
+        useState(false);
 
     useEffect(() => {
         onChangeRef.current = onChange;
@@ -130,10 +136,11 @@ export default function LocationPickerMap({
             });
 
             mapRef.current = map;
+            setMapReady(true);
 
             window.setTimeout(() => {
                 map.invalidateSize();
-            }, 0);
+            }, 100);
         };
 
         initializeMap();
@@ -148,14 +155,48 @@ export default function LocationPickerMap({
             mapRef.current = null;
 
             leafletRef.current = null;
+            setMapReady(false);
         };
     }, []);
+
+    useEffect(() => {
+        const map = mapRef.current;
+
+        if (
+            !mapReady ||
+            !map ||
+            viewLatitude === null ||
+            viewLongitude === null ||
+            !Number.isFinite(viewLatitude) ||
+            !Number.isFinite(viewLongitude)
+        ) {
+            return;
+        }
+
+        map.flyTo(
+            [
+                viewLatitude,
+                viewLongitude,
+            ],
+            viewZoom ?? 13,
+            {
+                animate: true,
+                duration: 0.8,
+            },
+        );
+    }, [
+        mapReady,
+        viewLatitude,
+        viewLongitude,
+        viewZoom,
+    ]);
 
     useEffect(() => {
         const L = leafletRef.current;
         const map = mapRef.current;
 
         if (
+            !mapReady ||
             !L ||
             !map ||
             latitude === null ||
@@ -191,8 +232,9 @@ export default function LocationPickerMap({
             position,
             Math.max(map.getZoom(), 15),
         );
-    }, [latitude, longitude]);
-
+    }, [mapReady,
+        latitude,
+        longitude]);
 
 
     const locateUser = () => {
@@ -240,7 +282,7 @@ export default function LocationPickerMap({
         <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="size-4" />
+                    <MapPin className="size-4"/>
 
                     برای تعیین محل تعمیرگاه روی
                     نقشه کلیک کنید.
@@ -253,7 +295,7 @@ export default function LocationPickerMap({
                     disabled={locating}
                     onClick={locateUser}
                 >
-                    <LocateFixed className="size-4" />
+                    <LocateFixed className="size-4"/>
 
                     {locating
                         ? 'در حال مکان‌یابی...'

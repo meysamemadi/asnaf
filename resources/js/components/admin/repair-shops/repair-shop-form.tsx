@@ -76,6 +76,12 @@ interface RepairShopFormProps {
 }
 
 
+interface MapView {
+    latitude: number;
+    longitude: number;
+    zoom: number;
+}
+
 
 export default function RepairShopForm({
                                            mode,
@@ -114,6 +120,9 @@ export default function RepairShopForm({
         setNeighborhoods,
     ] = useState(initialNeighborhoods);
 
+    const [mapView, setMapView] =
+        useState<MapView | null>(null);
+
     const [loadingCities, setLoadingCities] =
         useState(false);
 
@@ -121,6 +130,32 @@ export default function RepairShopForm({
         loadingNeighborhoods,
         setLoadingNeighborhoods,
     ] = useState(false);
+
+    const focusMapOnLocation = (
+        location:
+            | {
+            latitude: number | null;
+            longitude: number | null;
+            map_zoom: number;
+        }
+            | null
+            | undefined,
+    ): void => {
+        if (
+            location?.latitude === null ||
+            location?.latitude === undefined ||
+            location.longitude === null ||
+            location.longitude === undefined
+        ) {
+            return;
+        }
+
+        setMapView({
+            latitude: location.latitude,
+            longitude: location.longitude,
+            zoom: location.map_zoom,
+        });
+    };
 
     const submit = (
         event: FormEvent<HTMLFormElement>,
@@ -154,8 +189,16 @@ export default function RepairShopForm({
 
     const changeProvince = async (
         value: string,
-    ) => {
+    ): Promise<void> => {
         const provinceId = Number(value);
+
+        const province =
+            options.provinces.find(
+                (item) =>
+                    item.id === provinceId,
+            );
+
+        focusMapOnLocation(province);
 
         setData((current) => ({
             ...current,
@@ -166,7 +209,6 @@ export default function RepairShopForm({
 
         setCities([]);
         setNeighborhoods([]);
-
         setLoadingCities(true);
 
         try {
@@ -180,14 +222,24 @@ export default function RepairShopForm({
             );
 
             if (!response.ok) {
-                throw new Error();
+                throw new Error(
+                    'دریافت شهرهای استان با خطا مواجه شد.',
+                );
             }
 
-            const result = (await response.json()) as {
-                data: RepairShopLocationCityOption[];
-            };
+            const result =
+                (await response.json()) as {
+                    data: RepairShopLocationCityOption[];
+                };
 
             setCities(result.data);
+        } catch (error) {
+            console.error(
+                'Loading cities failed:',
+                error,
+            );
+
+            setCities([]);
         } finally {
             setLoadingCities(false);
         }
@@ -195,8 +247,15 @@ export default function RepairShopForm({
 
     const changeCity = async (
         value: string,
-    ) => {
+    ): Promise<void> => {
         const cityId = Number(value);
+
+        const city = cities.find(
+            (item) =>
+                item.id === cityId,
+        );
+
+        focusMapOnLocation(city);
 
         setData((current) => ({
             ...current,
@@ -218,17 +277,94 @@ export default function RepairShopForm({
             );
 
             if (!response.ok) {
-                throw new Error();
+                throw new Error(
+                    'دریافت محله‌های شهر با خطا مواجه شد.',
+                );
             }
 
-            const result = (await response.json()) as {
-                data: RepairShopNeighborhoodOption[];
-            };
+            const result =
+                (await response.json()) as {
+                    data: RepairShopNeighborhoodOption[];
+                };
 
             setNeighborhoods(result.data);
+        } catch (error) {
+            console.error(
+                'Loading neighborhoods failed:',
+                error,
+            );
+
+            setNeighborhoods([]);
         } finally {
             setLoadingNeighborhoods(false);
         }
+    };
+
+    const changeNeighborhood = (
+        value: string,
+    ): void => {
+        if (value === 'none') {
+            setData(
+                'neighborhood_id',
+                null,
+            );
+
+            const selectedCity =
+                cities.find(
+                    (city) =>
+                        city.id === data.city_id,
+                );
+
+            focusMapOnLocation(
+                selectedCity,
+            );
+
+            return;
+        }
+
+        const neighborhoodId =
+            Number(value);
+
+        setData(
+            'neighborhood_id',
+            neighborhoodId,
+        );
+
+        const neighborhood =
+            neighborhoods.find(
+                (item) =>
+                    item.id ===
+                    neighborhoodId,
+            );
+
+        /*
+         * اگر محله مختصات نداشت،
+         * نقشه روی مرکز شهر باقی می‌ماند.
+         */
+        if (
+            neighborhood?.latitude === null ||
+            neighborhood?.latitude ===
+            undefined ||
+            neighborhood.longitude === null ||
+            neighborhood.longitude ===
+            undefined
+        ) {
+            const selectedCity =
+                cities.find(
+                    (city) =>
+                        city.id === data.city_id,
+                );
+
+            focusMapOnLocation(
+                selectedCity,
+            );
+
+            return;
+        }
+
+        focusMapOnLocation(
+            neighborhood,
+        );
     };
 
     const toggleCategory = (
@@ -756,16 +892,7 @@ export default function RepairShopForm({
                                     )
                                     : 'none'
                             }
-                            onValueChange={(value) =>
-                                setData(
-                                    'neighborhood_id',
-                                    value === 'none'
-                                        ? null
-                                        : Number(
-                                            value,
-                                        ),
-                                )
-                            }
+                            onValueChange={changeNeighborhood}
                             disabled={
                                 !data.city_id ||
                                 loadingNeighborhoods
@@ -857,20 +984,27 @@ export default function RepairShopForm({
                             ? longitude
                             : null
                     }
+                    viewLatitude={
+                        mapView?.latitude ?? null
+                    }
+                    viewLongitude={
+                        mapView?.longitude ?? null
+                    }
+                    viewZoom={
+                        mapView?.zoom ?? null
+                    }
                     onChange={(
                         nextLatitude,
                         nextLongitude,
                     ) => {
                         setData((current) => ({
                             ...current,
+
                             latitude:
-                                String(
-                                    nextLatitude,
-                                ),
+                                String(nextLatitude),
+
                             longitude:
-                                String(
-                                    nextLongitude,
-                                ),
+                                String(nextLongitude),
                         }));
                     }}
                 />
