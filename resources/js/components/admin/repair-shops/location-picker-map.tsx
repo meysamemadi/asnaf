@@ -228,9 +228,16 @@ export default function LocationPickerMap({
             );
         }
 
-        map.setView(
+        map.flyTo(
             position,
-            Math.max(map.getZoom(), 15),
+            Math.max(
+                map.getZoom(),
+                15,
+            ),
+            {
+                animate: true,
+                duration: 0.5,
+            },
         );
     }, [mapReady,
         latitude,

@@ -6,6 +6,7 @@ use App\Enums\AgencyStatus;
 use App\Enums\BusinessLicenseStatus;
 use App\Enums\RepairShopApprovalStatus;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Neighborhood;
 use App\Models\RepairShop;
 use App\Models\RepairShopServiceArea;
@@ -128,16 +129,34 @@ abstract class RepairShopRequest extends FormRequest
             /*
              * اطلاعات مکانی
              */
+            /*
+             * اطلاعات مکانی
+             */
+            'province_id' => [
+                'required',
+                'integer',
+                Rule::exists(
+                    'provinces',
+                    'id',
+                ),
+            ],
+
             'city_id' => [
                 'required',
                 'integer',
-                Rule::exists('cities', 'id'),
+                Rule::exists(
+                    'cities',
+                    'id',
+                ),
             ],
 
             'neighborhood_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('neighborhoods', 'id'),
+                Rule::exists(
+                    'neighborhoods',
+                    'id',
+                ),
             ],
 
             'address' => [
@@ -443,10 +462,25 @@ abstract class RepairShopRequest extends FormRequest
                     return;
                 }
 
-                $this->validatePrimaryCategory($validator);
-                $this->validateLeafCategories($validator);
-                $this->validateNeighborhood($validator);
-                $this->validatePublishing($validator);
+                $this->validatePrimaryCategory(
+                    $validator,
+                );
+
+                $this->validateLeafCategories(
+                    $validator,
+                );
+
+                $this->validateCityBelongsToProvince(
+                    $validator,
+                );
+
+                $this->validateNeighborhood(
+                    $validator,
+                );
+
+                $this->validatePublishing(
+                    $validator,
+                );
                 $this->validateServiceAreaOwnership(
                     $validator,
                 );
@@ -463,6 +497,7 @@ abstract class RepairShopRequest extends FormRequest
             'professional_title' => 'عنوان تخصصی',
             'primary_category_id' => 'تخصص اصلی',
             'category_ids' => 'تخصص‌ها',
+            'province_id' => 'استان',
             'city_id' => 'شهر',
             'neighborhood_id' => 'محله',
             'address' => 'آدرس',
@@ -516,6 +551,28 @@ abstract class RepairShopRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'province_id' =>
+                $this->filled('province_id')
+                    ? $this->integer(
+                    'province_id',
+                )
+                    : null,
+
+            'city_id' =>
+                $this->filled('city_id')
+                    ? $this->integer(
+                    'city_id',
+                )
+                    : null,
+
+            'neighborhood_id' =>
+                $this->filled(
+                    'neighborhood_id',
+                )
+                    ? $this->integer(
+                    'neighborhood_id',
+                )
+                    : null,
             'mobile' => $this->normalizePhone(
                 $this->input('mobile'),
             ),
@@ -591,6 +648,41 @@ abstract class RepairShopRequest extends FormRequest
                 'category_ids',
                 'فقط دسته‌بندی‌های نهایی قابل انتخاب هستند: '
                 . $parentCategories->implode('، '),
+            );
+        }
+    }
+
+    private function validateCityBelongsToProvince(
+        Validator $validator,
+    ): void {
+        $provinceId = $this->integer(
+            'province_id',
+        );
+
+        $cityId = $this->integer(
+            'city_id',
+        );
+
+        if (
+            $provinceId <= 0 ||
+            $cityId <= 0
+        ) {
+            return;
+        }
+
+        $cityBelongsToProvince =
+            City::query()
+                ->whereKey($cityId)
+                ->where(
+                    'province_id',
+                    $provinceId,
+                )
+                ->exists();
+
+        if (!$cityBelongsToProvince) {
+            $validator->errors()->add(
+                'city_id',
+                'شهر انتخاب‌شده متعلق به استان انتخاب‌شده نیست.',
             );
         }
     }
