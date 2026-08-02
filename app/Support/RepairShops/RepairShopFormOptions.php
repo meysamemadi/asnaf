@@ -88,6 +88,9 @@ final class RepairShopFormOptions
                 'id',
                 'province_id',
                 'name',
+                'latitude',
+                'longitude',
+                'map_zoom',
             ])
             ->where('province_id', $provinceId)
             ->where('is_active', true)
@@ -99,8 +102,19 @@ final class RepairShopFormOptions
                     'id' => $city->id,
                     'province_id' => $city->province_id,
                     'name' => $city->name,
+
+                    'latitude' => $city->latitude !== null
+                        ? (float) $city->latitude
+                        : null,
+
+                    'longitude' => $city->longitude !== null
+                        ? (float) $city->longitude
+                        : null,
+
+                    'map_zoom' => (int) $city->map_zoom,
                 ],
             )
+            ->values()
             ->all();
     }
 
@@ -115,6 +129,9 @@ final class RepairShopFormOptions
                 'id',
                 'city_id',
                 'name',
+                'latitude',
+                'longitude',
+                'map_zoom',
             ])
             ->where('city_id', $cityId)
             ->where('is_active', true)
@@ -122,16 +139,28 @@ final class RepairShopFormOptions
             ->orderBy('name')
             ->get()
             ->map(
-                fn (Neighborhood $neighborhood): array => [
+                fn (
+                    Neighborhood $neighborhood,
+                ): array => [
                     'id' => $neighborhood->id,
                     'city_id' => $neighborhood->city_id,
                     'name' => $neighborhood->name,
 
-                    'latitude' => $neighborhood->latitude,
-                    'longitude' => $neighborhood->longitude,
-                    'map_zoom' => $neighborhood->map_zoom,
+                    'latitude' =>
+                        $neighborhood->latitude !== null
+                            ? (float) $neighborhood->latitude
+                            : null,
+
+                    'longitude' =>
+                        $neighborhood->longitude !== null
+                            ? (float) $neighborhood->longitude
+                            : null,
+
+                    'map_zoom' =>
+                        (int) $neighborhood->map_zoom,
                 ],
             )
+            ->values()
             ->all();
     }
 
@@ -205,6 +234,9 @@ final class RepairShopFormOptions
             ->select([
                 'id',
                 'name',
+                'latitude',
+                'longitude',
+                'map_zoom',
             ])
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -215,11 +247,18 @@ final class RepairShopFormOptions
                     'id' => $province->id,
                     'name' => $province->name,
 
-                    'latitude' => $province->latitude,
-                    'longitude' => $province->longitude,
-                    'map_zoom' => $province->map_zoom,
+                    'latitude' => $province->latitude !== null
+                        ? (float) $province->latitude
+                        : null,
+
+                    'longitude' => $province->longitude !== null
+                        ? (float) $province->longitude
+                        : null,
+
+                    'map_zoom' => (int) $province->map_zoom,
                 ],
             )
+            ->values()
             ->all();
     }
 }
