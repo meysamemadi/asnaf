@@ -126,6 +126,10 @@ final class RepairShopFormOptions
                     'id' => $neighborhood->id,
                     'city_id' => $neighborhood->city_id,
                     'name' => $neighborhood->name,
+
+                    'latitude' => $neighborhood->latitude,
+                    'longitude' => $neighborhood->longitude,
+                    'map_zoom' => $neighborhood->map_zoom,
                 ],
             )
             ->all();
@@ -185,6 +189,8 @@ final class RepairShopFormOptions
                 fn (Brand $brand): array => [
                     'id' => $brand->id,
                     'name' => $brand->name,
+
+
                 ],
             )
             ->all();
@@ -208,6 +214,10 @@ final class RepairShopFormOptions
                 fn (Province $province): array => [
                     'id' => $province->id,
                     'name' => $province->name,
+
+                    'latitude' => $province->latitude,
+                    'longitude' => $province->longitude,
+                    'map_zoom' => $province->map_zoom,
                 ],
             )
             ->all();
