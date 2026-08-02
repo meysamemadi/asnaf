@@ -13,9 +13,20 @@ import {
 import { Button } from '@/components/ui/button';
 
 interface MapCenterPickerProps {
+    /*
+     * نقطه‌ای که واقعاً در فرم ذخیره می‌شود.
+     */
     latitude: number | null;
     longitude: number | null;
     zoom: number;
+
+    /*
+     * مرکز موقت نمایش نقشه؛ مثلاً مرکز استان
+     * هنگام ثبت یک شهر جدید.
+     */
+    viewLatitude?: number | null;
+    viewLongitude?: number | null;
+    viewZoom?: number | null;
 
     label?: string;
 
@@ -36,7 +47,13 @@ export default function MapCenterPicker({
                                             latitude,
                                             longitude,
                                             zoom,
+
+                                            viewLatitude = null,
+                                            viewLongitude = null,
+                                            viewZoom = null,
+
                                             label = 'برای انتخاب مرکز روی نقشه کلیک کنید.',
+
                                             onChange,
                                             onClear,
                                         }: MapCenterPickerProps) {
@@ -56,6 +73,16 @@ export default function MapCenterPicker({
 
     const onChangeRef = useRef(onChange);
 
+    const initialValuesRef = useRef({
+        latitude,
+        longitude,
+        zoom,
+
+        viewLatitude,
+        viewLongitude,
+        viewZoom,
+    });
+
     const [mapReady, setMapReady] =
         useState(false);
 
@@ -69,6 +96,9 @@ export default function MapCenterPicker({
         onChangeRef.current = onChange;
     }, [onChange]);
 
+    /*
+     * ساخت اولیه نقشه
+     */
     useEffect(() => {
         let cancelled = false;
 
@@ -101,21 +131,48 @@ export default function MapCenterPicker({
 
                     leafletRef.current = L;
 
-                    const hasCenter =
+                    const initial =
+                        initialValuesRef.current;
+
+                    const hasPoint =
                         isValidCoordinate(
-                            latitude,
-                            longitude,
+                            initial.latitude,
+                            initial.longitude,
                         );
 
-                    const center: [
-                        number,
-                        number,
-                    ] = hasCenter
-                        ? [
-                            latitude as number,
-                            longitude as number,
-                        ]
-                        : DEFAULT_CENTER;
+                    const hasView =
+                        isValidCoordinate(
+                            initial.viewLatitude,
+                            initial.viewLongitude,
+                        );
+
+                    let center =
+                        DEFAULT_CENTER;
+
+                    let initialZoom = 5;
+
+                    if (hasPoint) {
+                        center = [
+                            initial.latitude as number,
+                            initial.longitude as number,
+                        ];
+
+                        initialZoom =
+                            normalizeZoom(
+                                initial.zoom,
+                            );
+                    } else if (hasView) {
+                        center = [
+                            initial.viewLatitude as number,
+                            initial.viewLongitude as number,
+                        ];
+
+                        initialZoom =
+                            normalizeZoom(
+                                initial.viewZoom ??
+                                initial.zoom,
+                            );
+                    }
 
                     const map = L.map(
                         containerRef.current,
@@ -127,9 +184,7 @@ export default function MapCenterPicker({
                         },
                     ).setView(
                         center,
-                        hasCenter
-                            ? normalizeZoom(zoom)
-                            : 5,
+                        initialZoom,
                     );
 
                     L.tileLayer(
@@ -198,6 +253,9 @@ export default function MapCenterPicker({
         };
     }, []);
 
+    /*
+     * نمایش یا جابه‌جایی Marker ذخیره‌شونده
+     */
     useEffect(() => {
         const L = leafletRef.current;
         const map = mapRef.current;
@@ -251,27 +309,42 @@ export default function MapCenterPicker({
         zoom,
     ]);
 
+    /*
+     * حرکت موقت نقشه روی استان یا منطقه والد.
+     * این Effect هیچ مختصاتی را ذخیره نمی‌کند.
+     */
     useEffect(() => {
         const map = mapRef.current;
 
         if (
             !mapReady ||
             !map ||
-            isValidCoordinate(
-                latitude,
-                longitude,
+            !isValidCoordinate(
+                viewLatitude,
+                viewLongitude,
             )
         ) {
             return;
         }
 
-        map.setZoom(
-            normalizeZoom(zoom),
+        map.flyTo(
+            [
+                viewLatitude as number,
+                viewLongitude as number,
+            ],
+            normalizeZoom(
+                viewZoom ?? zoom,
+            ),
+            {
+                animate: true,
+                duration: 0.8,
+            },
         );
     }, [
         mapReady,
-        latitude,
-        longitude,
+        viewLatitude,
+        viewLongitude,
+        viewZoom,
         zoom,
     ]);
 
@@ -289,7 +362,7 @@ export default function MapCenterPicker({
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                onChange(
+                onChangeRef.current(
                     roundCoordinate(
                         position.coords.latitude,
                     ),
@@ -392,12 +465,14 @@ function resolveLeaflet(
 }
 
 function isValidCoordinate(
-    latitude: number | null,
-    longitude: number | null,
+    latitude: number | null | undefined,
+    longitude: number | null | undefined,
 ): boolean {
     return (
         latitude !== null &&
+        latitude !== undefined &&
         longitude !== null &&
+        longitude !== undefined &&
         Number.isFinite(latitude) &&
         Number.isFinite(longitude)
     );
@@ -407,7 +482,7 @@ function normalizeZoom(
     zoom: number,
 ): number {
     if (!Number.isFinite(zoom)) {
-        return 8;
+        return 12;
     }
 
     return Math.min(
