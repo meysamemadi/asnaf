@@ -16,6 +16,7 @@ class Province extends Model
         'latitude',
         'longitude',
         'map_zoom',
+        'code',
     ];
 
     protected function casts(): array
