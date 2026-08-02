@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\LocationOptionController;
+use App\Http\Controllers\Admin\NeighborhoodController;
 use App\Http\Controllers\Admin\ProvinceController;
 use App\Http\Controllers\Admin\RepairShopController;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +84,11 @@ Route::middleware(['auth'])
         Route::resource(
             'cities',
             CityController::class,
+        )->except('show');
+
+        Route::resource(
+            'neighborhoods',
+            NeighborhoodController::class,
         )->except('show');
 
 
