@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid , SquareStack } from 'lucide-react';
+import {BookOpen, FolderGit2, LayoutGrid, MapPinned, SquareStack , AlignVerticalDistributeStart , Store} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -18,14 +18,30 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'داشبرد',
+        title: 'داشبورد',
         href: dashboard(),
         icon: LayoutGrid,
     },
     {
-        title: 'دسته بندی',
-        href: dashboard(),
+        title: 'دسته‌بندی‌ها',
+        href: '/admin/categories',
         icon: SquareStack,
+    },
+    {
+        title: 'نمایندگی ها',
+        href: '/admin/brands',
+        icon: AlignVerticalDistributeStart,
+    },
+
+    {
+        title: 'تعمیرگاه',
+        href: '/admin/repair-shops',
+        icon: Store,
+    },
+    {
+        title: 'استان‌ها',
+        href: '/admin/provinces',
+        icon: MapPinned,
     },
 ];
 
