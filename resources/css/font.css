@@ -1,0 +1,49 @@
+@font-face {
+    font-family: "IRANYekan";
+    src:
+        url("../fonts/IRANYekanX-Regular.woff2") format("woff2"),
+        url("../fonts/IRANYekanX-Regular.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANYekan";
+    src:
+        url("../fonts/IRANYekanX-Medium.woff2") format("woff2"),
+        url("../fonts/IRANYekanX-Medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANYekan";
+    src:
+        url("../fonts/IRANYekanX-Bold.woff2") format("woff2"),
+        url("../fonts/IRANYekanX-Bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANYekan";
+    src:
+        url("../fonts/IRANYekanX-ExtraBold.woff2") format("woff2"),
+        url("../fonts/IRANYekanX-ExtraBold.woff") format("woff");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANYekan";
+    src:
+        url("../fonts/IRANYekanX-Light.woff2") format("woff2"),
+        url("../fonts/IRANYekanX-Light.woff") format("woff");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
