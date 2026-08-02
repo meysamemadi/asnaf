@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\LocationOptionController;
+use App\Http\Controllers\Admin\ProvinceController;
 use App\Http\Controllers\Admin\RepairShopController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +72,11 @@ Route::middleware(['auth'])
         Route::resource(
             'brands',
             BrandController::class,
+        )->except('show');
+
+        Route::resource(
+            'provinces',
+            ProvinceController::class,
         )->except('show');
 
 
