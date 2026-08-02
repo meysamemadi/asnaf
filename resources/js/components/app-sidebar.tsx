@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {BookOpen, FolderGit2, LayoutGrid, MapPinned, SquareStack , AlignVerticalDistributeStart , Store , MapPin} from 'lucide-react';
+import {BookOpen, FolderGit2, LayoutGrid, MapPinned, SquareStack , AlignVerticalDistributeStart , Store , MapPin , Map} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -47,6 +47,11 @@ const mainNavItems: NavItem[] = [
         title: 'شهرها',
         href: '/admin/cities',
         icon: MapPin,
+    },
+    {
+        title: 'محله‌ها',
+        href: '/admin/neighborhoods',
+        icon: Map,
     },
 ];
 
