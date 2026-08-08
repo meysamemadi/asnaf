@@ -53,6 +53,15 @@ class Category extends Model
             ->orderBy('name');
     }
 
+    public function activeChildrenRecursive(): HasMany
+    {
+        return $this->children()
+            ->where('is_active', true)
+            ->with('activeChildrenRecursive')
+            ->orderBy('sort_order')
+            ->orderBy('name');
+    }
+
     public function scopeRoot(Builder $query): Builder
     {
         return $query->whereNull('parent_id');
