@@ -88,30 +88,50 @@ final class RepairShopFormOptions
                 'id',
                 'province_id',
                 'name',
+
                 'latitude',
                 'longitude',
                 'map_zoom',
+
+                'is_active',
             ])
-            ->where('province_id', $provinceId)
-            ->where('is_active', true)
+            ->where(
+                'province_id',
+                $provinceId,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get()
             ->map(
                 fn (City $city): array => [
-                    'id' => $city->id,
-                    'province_id' => $city->province_id,
-                    'name' => $city->name,
+                    'id' =>
+                        $city->id,
 
-                    'latitude' => $city->latitude !== null
-                        ? (float) $city->latitude
-                        : null,
+                    'province_id' =>
+                        $city->province_id,
 
-                    'longitude' => $city->longitude !== null
-                        ? (float) $city->longitude
-                        : null,
+                    'name' =>
+                        $city->name,
 
-                    'map_zoom' => (int) $city->map_zoom,
+                    'latitude' =>
+                        $city->latitude !== null
+                            ? (float) $city->latitude
+                            : null,
+
+                    'longitude' =>
+                        $city->longitude !== null
+                            ? (float) $city->longitude
+                            : null,
+
+                    'map_zoom' =>
+                        (int) $city->map_zoom,
+
+                    'is_active' =>
+                        (bool) $city->is_active,
                 ],
             )
             ->values()
