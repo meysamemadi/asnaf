@@ -9,7 +9,7 @@ import {
 } from '@inertiajs/react';
 
 
-
+import PersianDatePicker from '@/components/ui/persian-date-picker';
 import {
     Building2,
     FileBadge,
@@ -1283,17 +1283,16 @@ export default function RepairShopForm({
                             errors.business_license_issued_at
                         }
                     >
-                        <Input
+                        <PersianDatePicker
                             id="business_license_issued_at"
-                            type="date"
-                            dir="ltr"
                             value={
                                 data.business_license_issued_at
                             }
-                            onChange={(event) =>
+                            placeholder="تاریخ صدور پروانه"
+                            onChange={(value) =>
                                 setData(
                                     'business_license_issued_at',
-                                    event.target.value,
+                                    value,
                                 )
                             }
                         />
@@ -1306,17 +1305,16 @@ export default function RepairShopForm({
                             errors.business_license_expires_at
                         }
                     >
-                        <Input
+                        <PersianDatePicker
                             id="business_license_expires_at"
-                            type="date"
-                            dir="ltr"
                             value={
                                 data.business_license_expires_at
                             }
-                            onChange={(event) =>
+                            placeholder="تاریخ انقضای پروانه"
+                            onChange={(value) =>
                                 setData(
                                     'business_license_expires_at',
-                                    event.target.value,
+                                    value,
                                 )
                             }
                         />
@@ -1414,15 +1412,15 @@ export default function RepairShopForm({
                         error={errors.published_at}
                         description="فقط تعمیرگاه تأییدشده قابل انتشار است."
                     >
-                        <Input
+                        <PersianDatePicker
                             id="published_at"
-                            type="datetime-local"
-                            dir="ltr"
                             value={data.published_at}
-                            onChange={(event) =>
+                            withTime
+                            placeholder="تاریخ و ساعت انتشار"
+                            onChange={(value) =>
                                 setData(
                                     'published_at',
-                                    event.target.value,
+                                    value,
                                 )
                             }
                         />

@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import PersianDatePicker from '@/components/ui/persian-date-picker';
 
 import type {
     AgencyStatus,
@@ -370,23 +371,15 @@ export default function AgencyManager({
                                                     ]
                                             }
                                         >
-                                            <Input
+                                            <PersianDatePicker
                                                 id={`agencies-${index}-issued-at`}
-                                                type="date"
-                                                dir="ltr"
-                                                value={
-                                                    agency.issued_at
-                                                }
-                                                onChange={(
-                                                    event,
-                                                ) =>
+                                                value={agency.issued_at}
+                                                placeholder="تاریخ صدور"
+                                                onChange={(value) =>
                                                     updateAgency(
                                                         index,
                                                         {
-                                                            issued_at:
-                                                            event
-                                                                .target
-                                                                .value,
+                                                            issued_at: value,
                                                         },
                                                     )
                                                 }
@@ -402,23 +395,15 @@ export default function AgencyManager({
                                                     ]
                                             }
                                         >
-                                            <Input
+                                            <PersianDatePicker
                                                 id={`agencies-${index}-expires-at`}
-                                                type="date"
-                                                dir="ltr"
-                                                value={
-                                                    agency.expires_at
-                                                }
-                                                onChange={(
-                                                    event,
-                                                ) =>
+                                                value={agency.expires_at}
+                                                placeholder="تاریخ انقضا"
+                                                onChange={(value) =>
                                                     updateAgency(
                                                         index,
                                                         {
-                                                            expires_at:
-                                                            event
-                                                                .target
-                                                                .value,
+                                                            expires_at: value,
                                                         },
                                                     )
                                                 }
